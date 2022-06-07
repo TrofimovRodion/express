@@ -49,6 +49,7 @@ async function createEvent(guestId, timelineId, groupId, details) {
         groupId: new ObjectId(groupId),
         title: details.title,
         duration: details.duration,
+        period: details.period,
         date_start: details.date_start,
         date_end: details.date_end
     }

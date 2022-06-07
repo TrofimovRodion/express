@@ -13,6 +13,7 @@ async function create(req, res, next) {
                 title: req.body.title,
                 date_start: req.body.date_start,
                 duration: req.body.duration,
+                period: req.body.period ? req.body.period : 0,
             })
         res.json(newEvent);
     } catch (err) {
