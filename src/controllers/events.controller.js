@@ -14,6 +14,7 @@ async function create(req, res, next) {
                 date_start: req.body.date_start,
                 duration: req.body.duration,
                 period: req.body.period ? req.body.period : 0,
+                date_repeatable_end: req.body.date_repeatable_end ? req.body.date_repeatable_end : null,
             })
         res.json(newEvent);
     } catch (err) {
