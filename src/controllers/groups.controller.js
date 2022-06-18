@@ -8,7 +8,8 @@ async function create(req, res, next) {
             req.params.timelineId,
             {
                 title: req.body.title,
-                background: req.body.background
+                background: req.body.background,
+                lines: req.body.lines
             })
         res.json(newGroup);
     } catch (err) {

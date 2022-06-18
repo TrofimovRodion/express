@@ -50,6 +50,7 @@ async function createEvent(guestId, timelineId, groupId, details) {
         title: details.title,
         duration: details.duration,
         period: details.period,
+        color: details.color,
         date_repeatable_end: details.date_repeatable_end,
         date_start: details.date_start,
         date_end: details.date_end
@@ -71,6 +72,7 @@ async function createGroup(guestId, timelineId, details) {
         guest: new ObjectId(guestId),
         timelineId: new ObjectId(timelineId),
         title: details.title,
+        lines: details.lines,
         background: details.background
     }
     let insertData = await db.insertOne('groups', data)
