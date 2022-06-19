@@ -51,6 +51,7 @@ async function createEvent(guestId, timelineId, groupId, details) {
         duration: details.duration,
         period: details.period,
         color: details.color,
+        line: details.line,
         date_repeatable_end: details.date_repeatable_end,
         date_start: details.date_start,
         date_end: details.date_end

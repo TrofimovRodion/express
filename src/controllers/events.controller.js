@@ -15,6 +15,7 @@ async function create(req, res, next) {
                 duration: req.body.duration,
                 period: req.body.period ? req.body.period : 0,
                 color: req.body.color ? req.body.color : 0,
+                line: req.body.line? req.body.line : 0,
                 date_repeatable_end: req.body.date_repeatable_end ? req.body.date_repeatable_end : null,
             })
         res.json(newEvent);
