@@ -1,6 +1,7 @@
 const db = require("./db.service")
 const ObjectId = require("mongodb").ObjectId
 
+
 async function findTimelinesByGuestId(guestId) {
     let result = await db.find('timelines', { guest: new ObjectId(guestId) });
     if (!result) throw new Error("no timelines found for guest " + guestId);
@@ -61,6 +62,26 @@ async function createEvent(guestId, timelineId, groupId, details) {
     return newOne
 }
 
+async function connectEvents(guestId, timelineId, eventId, eventRepeatNum, targetEventId, targetEventRepeatNum) {
+    let data = {
+        guestId: new ObjectId(guestId),
+        timelineId: new ObjectId(timelineId),
+        eventId: new ObjectId(eventId),
+        eventRepeatNum: eventRepeatNum,
+        targetEventId: new ObjectId(targetEventId),
+        targetEventRepeatNum: targetEventRepeatNum
+    }
+    let insertData = await db.insertOne('eventsConnections', data)
+    return insertData;
+}
+
+async function disconnectEvents(eventId) {
+    console.log(eventId);
+    await db.removeBy('eventsConnections', {
+        eventId:new ObjectId(eventId)
+    });
+}
+
 async function updateEvent(eventId, changes) {
     await db.updateOneByStrId('events', eventId, changes)
     return await findEventByStrId(eventId);
@@ -97,6 +118,7 @@ async function getTimelineData(timelineId) {
         groups: []
     }, timeline)
     result.groups = await findGroupsByTimelineStrId(timelineId);
+    result.connections = await findConnectionsByTimelineStrId(timelineId);
     if (result.groups.length) {
         let events = await findEventsByTimelineStrId(timelineId);
         for (let i = 0; i < result.groups.length; i++) {
@@ -114,6 +136,10 @@ async function findEventsByTimelineStrId(timelineId) {
     return await db.find('events', { timelineId: new ObjectId(timelineId) })
 }
 
+async function findConnectionsByTimelineStrId(timelineId) {
+    return await db.find('eventsConnections', { timelineId: new ObjectId(timelineId) })
+}
+
 module.exports = {
     findTimelinesByGuestId,
     findTimelineByStrId,
@@ -122,5 +148,6 @@ module.exports = {
     createTimeline, updateTimeline, removeTimeline,
     createEvent, updateEvent, removeEvent,
     createGroup, updateGroup, removeGroup,
-    getTimelineData
+    getTimelineData,
+    connectEvents, disconnectEvents
 }

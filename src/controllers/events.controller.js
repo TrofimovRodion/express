@@ -33,7 +33,30 @@ async function update(req, res, next) {
         next(err);
     }
 }
-
+async function connect(req, res, next) {
+    try {
+        await timelineService.disconnectEvents(req.params.eventId)
+        res.json(await timelineService.connectEvents(
+            res.locals.guest._id,
+            req.params.timelineId,
+            req.params.eventId,
+            req.body.eventRepeatNum,
+            req.body.targetEventId,
+            req.body.targetEventRepeatNum,
+            ))
+    } catch (err) {
+        console.error(`Error while connecting events`, err.message);
+        next(err);
+    }
+}
+async function disconnect(req, res, next) {
+    try {
+        res.json(await timelineService.disconnectEvents(req.params.eventId))
+    } catch (err) {
+        console.error(`Error while disconnecting events`, err.message);
+        next(err);
+    }
+}
 async function remove(req, res, next) {
     try {
         await timelineService.removeEvent(req.params.eventId)
@@ -47,5 +70,7 @@ async function remove(req, res, next) {
 module.exports = {
     create,
     update,
+    connect,
+    disconnect,
     remove
 }

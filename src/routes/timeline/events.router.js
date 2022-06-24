@@ -8,5 +8,7 @@ router.use(guestMiddleware.guestLogin)
 router.all('/create', controller.create);
 router.all('/:eventId/update', controller.update);
 router.all('/:eventId/remove', controller.remove);
+router.all('/:eventId/connect', controller.connect);
+router.all('/:eventId/disconnect', controller.disconnect);
 
 module.exports = router;
