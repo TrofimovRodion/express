@@ -27,7 +27,8 @@ async function create(req, res, next) {
 
 async function update(req, res, next) {
     try {
-        res.json(await timelineService.updateEvent(req.params.eventId, req.body.changes))
+        let event = await timelineService.updateEvent(req.params.eventId, req.body.changes);
+        res.json(event)
     } catch (err) {
         console.error(`Error while updating event`, err.message);
         next(err);
@@ -59,7 +60,7 @@ async function disconnect(req, res, next) {
 }
 async function remove(req, res, next) {
     try {
-        await timelineService.removeEvent(req.params.eventId)
+        await timelineService.removeEvent(req.params.timelineId,req.params.eventId)
         res.json()
     } catch (err) {
         console.error(`Error while removing event`, err.message);

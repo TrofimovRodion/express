@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('myapp:server');
 var http = require('http');
+const { Server } = require("socket.io");
 
 /**
  * Get port from environment and store in Express.
@@ -20,6 +21,26 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+const io = new Server(server, {
+  serveClient: false,
+  cors: {
+    origin: ["http://localhost:8080"],
+    allowedHeaders: ["my-custom-header"],
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
+global.io = io;
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+  
+  socket.on('subscribeTimeline', function(timelineId) {
+      console.log('a user connected to timeline ' + timelineId)
+      socket.join('timeline_'+timelineId)
+  });
+});
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -88,3 +109,4 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+

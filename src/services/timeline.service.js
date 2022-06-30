@@ -59,6 +59,7 @@ async function createEvent(guestId, timelineId, groupId, details) {
     }
     let insertData = await db.insertOne('events', data)
     let newOne = await findEventByStrId(insertData.insertedId.toString())
+    global.io.to('timeline_'+timelineId).emit('event_appended',newOne);
     return newOne
 }
 
@@ -76,7 +77,6 @@ async function connectEvents(guestId, timelineId, eventId, eventRepeatNum, targe
 }
 
 async function disconnectEvents(eventId) {
-    console.log(eventId);
     await db.removeBy('eventsConnections', {
         eventId:new ObjectId(eventId)
     });
@@ -84,10 +84,13 @@ async function disconnectEvents(eventId) {
 
 async function updateEvent(eventId, changes) {
     await db.updateOneByStrId('events', eventId, changes)
-    return await findEventByStrId(eventId);
+    let event = await findEventByStrId(eventId);
+    global.io.to('timeline_'+event.timelineId.toString()).emit('event_updated',{eventId:eventId, changes:changes});
+    return event
 }
-async function removeEvent(eventId) {
-    await db.removeByStrId('events', eventId);
+async function removeEvent(timelineId, eventId) {
+    await db.removeBy('events', {_id:new ObjectId(eventId),timelineId:new ObjectId(timelineId)});
+    global.io.to('timeline_'+timelineId).emit('event_removed',eventId);
 }
 async function createGroup(guestId, timelineId, details) {
     let data = {
