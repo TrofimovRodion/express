@@ -27,7 +27,7 @@ async function create(req, res, next) {
 
 async function update(req, res, next) {
     try {
-        let event = await timelineService.updateEvent(req.params.eventId, req.body.changes);
+        let event = await timelineService.updateEvent(req.params.timelineId, req.params.eventId, req.body.changes);
         res.json(event)
     } catch (err) {
         console.error(`Error while updating event`, err.message);
@@ -36,7 +36,7 @@ async function update(req, res, next) {
 }
 async function connect(req, res, next) {
     try {
-        await timelineService.disconnectEvents(req.params.eventId)
+        await timelineService.disconnectEvents(req.params.timelineId,req.params.eventId)
         res.json(await timelineService.connectEvents(
             res.locals.guest._id,
             req.params.timelineId,

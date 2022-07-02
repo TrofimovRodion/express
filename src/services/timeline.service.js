@@ -25,10 +25,13 @@ async function createTimeline(guestId, details) {
 }
 async function updateTimeline(timelineId, changes) {
     await db.updateOneByStrId('timelines', timelineId, changes)
-    return await findTimelineByStrId(timelineId);
+    let timeline = await findTimelineByStrId(timelineId);
+    global.io.to('timeline_'+timelineId).emit('timeline_updated', {timelineId:timelineId, changes:changes});
+    return timeline;
 }
 async function removeTimeline(timelineId) {
     await db.removeByStrId('timelines', timelineId);
+    global.io.to('timeline_'+timelineId).emit('timeline_removed');
 }
 
 async function findEventByStrId(id) {
@@ -73,19 +76,27 @@ async function connectEvents(guestId, timelineId, eventId, eventRepeatNum, targe
         targetEventRepeatNum: targetEventRepeatNum
     }
     let insertData = await db.insertOne('eventsConnections', data)
+    global.io.to('timeline_'+timelineId).emit('connection_appended',{
+        eventId:eventId,
+        eventRepeatNum:eventRepeatNum,
+        targetEventId:targetEventId,
+        targetEventRepeatNum:targetEventRepeatNum
+    });
     return insertData;
 }
 
-async function disconnectEvents(eventId) {
+async function disconnectEvents(timelineId, eventId) {
     await db.removeBy('eventsConnections', {
-        eventId:new ObjectId(eventId)
+        eventId:new ObjectId(eventId),
+        timelineId:new ObjectId(timelineId),
     });
+    global.io.to('timeline_'+timelineId).emit('connection_removed',{eventId:eventId});
 }
 
-async function updateEvent(eventId, changes) {
+async function updateEvent(timelineId, eventId, changes) {
     await db.updateOneByStrId('events', eventId, changes)
     let event = await findEventByStrId(eventId);
-    global.io.to('timeline_'+event.timelineId.toString()).emit('event_updated',{eventId:eventId, changes:changes});
+    global.io.to('timeline_'+timelineId).emit('event_updated',{eventId:eventId, changes:changes});
     return event
 }
 async function removeEvent(timelineId, eventId) {
@@ -102,15 +113,19 @@ async function createGroup(guestId, timelineId, details) {
     }
     let insertData = await db.insertOne('groups', data)
     let newOne = await findGroupByStrId(insertData.insertedId.toString())
+    global.io.to('timeline_'+timelineId).emit('group_appended',newOne);
     return newOne
 }
-async function updateGroup(groupId, changes) {
+async function updateGroup(timelineId, groupId, changes) {
     await db.updateOneByStrId('groups', groupId, changes)
-    return await findGroupByStrId(groupId);
+    let group = await findGroupByStrId(groupId);
+    global.io.to('timeline_'+timelineId).emit('group_updated',{groupId:groupId,changes:changes});
+    return group
 }
-async function removeGroup(groupId) {
-    await db.removeBy('events',{groupId:groupId});
+async function removeGroup(timelineId, groupId) {
+    await db.removeBy('events',{groupId:groupId, timelineId:timelineId});
     await db.removeByStrId('groups', groupId);
+    global.io.to('timeline_'+timelineId).emit('group_removed',groupId);
 }
 
 async function getTimelineData(timelineId) {

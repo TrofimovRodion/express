@@ -20,7 +20,7 @@ async function create(req, res, next) {
 
 async function update(req, res, next) {
     try {
-        res.json(await timelineService.updateGroup(req.params.groupId, req.body.changes))
+        res.json(await timelineService.updateGroup(req.params.timelineId, req.params.groupId, req.body.changes))
     } catch (err) {
         console.error(`Error while updating group`, err.message);
         next(err);
@@ -29,7 +29,7 @@ async function update(req, res, next) {
 
 async function remove(req, res, next) {
     try {
-        await timelineService.removeGroup(req.params.groupId)
+        await timelineService.removeGroup(req.params.timelineId, req.params.groupId)
         res.json()
     } catch (err) {
         console.error(`Error while removing group `, err.message);
